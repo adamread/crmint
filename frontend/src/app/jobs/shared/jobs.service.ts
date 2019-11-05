@@ -12,66 +12,62 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Injectable } from '@angular/core';
-import { Http, Headers, RequestOptions, URLSearchParams } from '@angular/http';
-import { serialize } from 'class-transformer';
 import 'rxjs/add/operator/toPromise';
 
-import { Param } from 'app/models/param';
-import { ApiService } from 'app/api.service';
+import {Injectable} from '@angular/core';
+import {ApiService} from 'app/api.service';
+import {serialize} from 'class-transformer';
 
 @Injectable()
 export class JobsService extends ApiService {
-
   private url = `${this.getHost()}/jobs`;
 
   getJobsByPipeline(pipeline_id) {
-    const params = new URLSearchParams();
-    params.set('pipeline_id', pipeline_id);
-    this.options.search = params;
+    this.options.params.set('pipeline_id', pipeline_id);
     return this.http.get(this.url, this.options)
-                    .toPromise()
-                    .then(res => res.json())
-                    .catch(this.handleError);
+        .toPromise()
+        .then(res => {return res})
+        .catch(this.handleError);
   }
 
   getJob(id) {
     return this.http.get(this.getJobUrl(id))
-                    .toPromise()
-                    .then(res => res.json())
-                    .catch(this.handleError);
+        .toPromise()
+        .then(res => {return res})
+        .catch(this.handleError);
   }
 
   addJob(job) {
-    return this.http.post(this.url, serialize(job), { headers: this.headers })
-                    .toPromise()
-                    .then(res => res.json())
-                    .catch(this.handleError);
+    return this.http.post(this.url, serialize(job), {headers: this.headers})
+        .toPromise()
+        .then(res => {return res})
+        .catch(this.handleError);
   }
 
   updateJob(job) {
-    return this.http.put(this.getJobUrl(job.id), serialize(job), { headers: this.headers })
-                    .toPromise()
-                    .then(res => res.json())
-                    .catch(this.handleError);
+    return this.http
+        .put(this.getJobUrl(job.id), serialize(job), {headers: this.headers})
+        .toPromise()
+        .then(res => {return res})
+        .catch(this.handleError);
   }
 
   deleteJob(id) {
     return this.http.delete(this.getJobUrl(id))
-                    .toPromise()
-                    .then(res => res.json())
-                    .catch(this.handleError);
+        .toPromise()
+        .then(res => {return res})
+        .catch(this.handleError);
   }
 
   startJob(id) {
-    return this.http.post(this.getJobUrl(id) + '/start', null, { headers: this.headers })
-                    .toPromise()
-                    .then(res => res.json())
-                    .catch(this.handleError);
+    return this.http
+        .post(this.getJobUrl(id) + '/start', null, {headers: this.headers})
+        .toPromise()
+        .then(res => {return res})
+        .catch(this.handleError);
   }
 
   private getJobUrl(id) {
     return this.url + '/' + id;
   }
-
 }

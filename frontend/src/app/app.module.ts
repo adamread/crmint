@@ -12,28 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { StagesComponent } from './dashboard/stages/stages.component';
-import { SharedModule } from './shared/shared.module';
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ClipboardModule } from 'ngx-clipboard';
+import {HttpClientModule} from '@angular/common/http';
+import {NgModule} from '@angular/core';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {BrowserModule} from '@angular/platform-browser';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {DashboardPipelinesComponent} from 'app/dashboard/dashboard-pipelines/dashboard-pipelines.component';
+import {ClipboardModule} from 'ngx-clipboard';
 
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import { DashboardComponent } from './dashboard/dashboard.component';
-import { SettingsComponent } from './settings/settings.component';
-import { PipelinesModule } from './pipelines/pipelines.module';
-import { PipelinesRoutingModule } from './pipelines/pipelines-routing.module';
-import { JobsModule } from './jobs/jobs.module';
-import { JobsRoutingModule } from './jobs/jobs-routing.module';
-import { NavBarComponent } from './nav-bar/nav-bar.component';
-import { TopBarComponent } from './top-bar/top-bar.component';
-import { LabelcasePipe } from './pipes/labelcase.pipe';
-import { StagesService } from './dashboard/shared/stages.service';
-import { DashboardPipelinesComponent } from 'app/dashboard/dashboard-pipelines/dashboard-pipelines.component';
+import {AppRoutingModule} from './app-routing.module';
+import {AppComponent} from './app.component';
+import {DashboardComponent} from './dashboard/dashboard.component';
+import {StagesService} from './dashboard/shared/stages.service';
+import {StagesComponent} from './dashboard/stages/stages.component';
+import {JobsRoutingModule} from './jobs/jobs-routing.module';
+import {JobsModule} from './jobs/jobs.module';
+import {NavBarComponent} from './nav-bar/nav-bar.component';
+import {PipelinesRoutingModule} from './pipelines/pipelines-routing.module';
+import {PipelinesModule} from './pipelines/pipelines.module';
+import {LabelcasePipe} from './pipes/labelcase.pipe';
+import {SettingsComponent} from './settings/settings.component';
+import {SharedModule} from './shared/shared.module';
+import {TopBarComponent} from './top-bar/top-bar.component';
 
 @NgModule({
   declarations: [
@@ -45,24 +45,14 @@ import { DashboardPipelinesComponent } from 'app/dashboard/dashboard-pipelines/d
     TopBarComponent,
     StagesComponent,
     LabelcasePipe,
-],
+  ],
   imports: [
-    BrowserModule,
-    FormsModule,
-    ReactiveFormsModule,
-    HttpModule,
-    PipelinesModule,
-    PipelinesRoutingModule,
-    JobsModule,
-    JobsRoutingModule,
-    AppRoutingModule,
-    BrowserAnimationsModule,
-    ClipboardModule,
-    SharedModule
+    BrowserModule, FormsModule, ReactiveFormsModule, HttpClientModule,
+    PipelinesModule, PipelinesRoutingModule, JobsModule, JobsRoutingModule,
+    AppRoutingModule, BrowserAnimationsModule, ClipboardModule, SharedModule
   ],
-  providers: [
-    StagesService
-  ],
+  providers: [StagesService],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+}

@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Router, ActivatedRoute } from '@angular/router';
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { classToClass, plainToClass } from 'class-transformer';
-import { Observable } from 'rxjs/Observable';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {JobsService} from 'app/jobs/shared/jobs.service';
+import {Job} from 'app/models/job';
+import {Pipeline} from 'app/models/pipeline';
+import {plainToClass} from 'class-transformer';
 
-import { Job } from 'app/models/job';
-import { JobsService } from 'app/jobs/shared/jobs.service';
-import { PipelinesService } from './../shared/pipelines.service';
-import { Pipeline } from 'app/models/pipeline';
+
+import {PipelinesService} from './../shared/pipelines.service';
 
 @Component({
   selector: 'app-pipeline-view',
@@ -32,21 +32,21 @@ export class PipelineViewComponent implements OnInit {
   @ViewChild('pipelineLogs') pipelineLogs;
   pipeline: Pipeline = new Pipeline();
   jobs: Job[] = [];
-  state = 'loading'; // State has one of values: loading, loaded, error
+  state = 'loading';  // State has one of values: loading, loaded, error
   indexTabActivated = 0;
 
   constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private pipelinesService: PipelinesService,
-    private jobsService: JobsService
-  ) { }
+      private router: Router, private route: ActivatedRoute,
+      private pipelinesService: PipelinesService,
+      private jobsService: JobsService) {}
 
   ngOnInit() {
     this.route.params.subscribe(params => {
       const id = params['id'];
 
-      if (!id) { this.router.navigate(['pipelines']); }
+      if (!id) {
+        this.router.navigate(['pipelines']);
+      }
 
       this.loadJobs(id);
     });
@@ -54,30 +54,35 @@ export class PipelineViewComponent implements OnInit {
 
   loadJobs(pipeline_id) {
     const promise1 = this.pipelinesService.getPipeline(pipeline_id)
-        .then(pipeline => this.pipeline = plainToClass(Pipeline, pipeline as Pipeline))
-        .catch(e => {
-          if (e.status === 404) {
-            this.router.navigate(['pipelines']);
+                         .then(
+                             pipeline => this.pipeline =
+                                 plainToClass(Pipeline, pipeline as Pipeline))
+                         .catch(e => {
+                           if (e.status === 404) {
+                             this.router.navigate(['pipelines']);
+                           }
+                           return Promise.reject(true);
+                         });
+
+    const promise2 =
+        this.jobsService.getJobsByPipeline(pipeline_id)
+            .then(data => this.jobs = plainToClass(Job, data as Job[]));
+
+    return Promise.all([promise1, promise2])
+        .then(results => {
+          this.state = 'loaded';
+          setTimeout(() => {
+            this.updateGraph();
+            // this.loadLogs();
+            this.startAutorefresh();
+          }, 100);
+        })
+        .catch(reason => {
+          console.error('reason', reason);
+          if (!this.jobs.length) {
+            this.state = 'error';
           }
-          return Promise.reject(true);
         });
-
-    const promise2 = this.jobsService.getJobsByPipeline(pipeline_id)
-                                     .then(data => this.jobs = plainToClass(Job, data as Job[]));
-
-    return Promise.all([promise1, promise2]).then(results => {
-      this.state = 'loaded';
-      setTimeout(() => {
-        this.updateGraph();
-        // this.loadLogs();
-        this.startAutorefresh();
-      }, 100);
-    }).catch(reason => {
-      console.error('reason', reason);
-      if (!this.jobs.length) {
-        this.state = 'error';
-      }
-    });
   }
 
   deleteJob(job_id) {
@@ -87,31 +92,27 @@ export class PipelineViewComponent implements OnInit {
       this.jobs.splice(index, 1);
       this.updateGraph();
 
-      this.jobsService.deleteJob(job.id)
-          .then(null,
-          err => {
-            alert('Could not delete job.');
-            // Revert the view back to its original state
-            this.jobs.splice(index, 0, job);
-            this.updateGraph();
-          });
+      this.jobsService.deleteJob(job.id).then(null, err => {
+        alert('Could not delete job.');
+        // Revert the view back to its original state
+        this.jobs.splice(index, 0, job);
+        this.updateGraph();
+      });
     }
   }
 
   startJob(job_id) {
     const job = this.jobs.find(obj => obj.id === Number(job_id)) as Job;
-    this.jobsService.startJob(job.id)
-                    .then(data => {
-                      this.loadJobs(this.pipeline.id);
-                    });
+    this.jobsService.startJob(job.id).then(data => {
+      this.loadJobs(this.pipeline.id);
+    });
   }
 
   startPipeline() {
-    this.pipelinesService.startPipeline(this.pipeline.id)
-                         .then(data => {
-                           this.pipeline = plainToClass(Pipeline, data as Pipeline);
-                           this.loadJobs(this.pipeline.id);
-                          });
+    this.pipelinesService.startPipeline(this.pipeline.id).then(data => {
+      this.pipeline = plainToClass(Pipeline, data as Pipeline);
+      this.loadJobs(this.pipeline.id);
+    });
   }
 
   startAutorefresh() {
@@ -127,28 +128,28 @@ export class PipelineViewComponent implements OnInit {
 
   stopPipeline() {
     this.pipelinesService.stopPipeline(this.pipeline.id)
-                         .then(data => this.pipeline = plainToClass(Pipeline, data as Pipeline));
+        .then(data => this.pipeline = plainToClass(Pipeline, data as Pipeline));
   }
 
   export() {
-    this.pipelinesService.exportPipeline(this.pipeline.id)
-                         .then(res => {
-                           const blob = new Blob([JSON.stringify(res.json(), null, 2)], { type: 'application/json' });
-                           const a = document.getElementById('crmi-download');
-                           const url = window.URL.createObjectURL(blob);
-                           a.setAttribute('href', url);
-                           a.setAttribute('download', res.headers.get('Filename'));
-                           a.click();
-                           window.URL.revokeObjectURL(url);
-                         });
+    this.pipelinesService.exportPipeline(this.pipeline.id).then(res => {
+      const blob =
+          new Blob([JSON.stringify(res, null, 2)], {type: 'application/json'});
+      const a = document.getElementById('crmi-download');
+      const url = window.URL.createObjectURL(blob);
+      a.setAttribute('href', url);
+      a.setAttribute('download', res.headers.get('Filename'));
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
   }
 
   updateRunOnSchedule(event) {
     this.pipelinesService.updateRunOnSchedule(this.pipeline.id, event.checked)
-                         .then(data => {
-                           this.pipeline = plainToClass(Pipeline, data as Pipeline);
-                           this.updateGraph();
-                          });
+        .then(data => {
+          this.pipeline = plainToClass(Pipeline, data as Pipeline);
+          this.updateGraph();
+        });
   }
 
   tabChange(event) {
@@ -168,5 +169,4 @@ export class PipelineViewComponent implements OnInit {
       this.pipelineLogs.loadNewestLogs();
     }
   }
-
 }

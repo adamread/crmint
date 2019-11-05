@@ -12,35 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Injectable } from '@angular/core';
-
-import { ApiService } from 'app/api.service';
-import { Stage } from 'app/models/stage';
-import { Pipeline } from 'app/models/pipeline';
+import {Injectable} from '@angular/core';
+import {ApiService} from 'app/api.service';
+import {Pipeline} from 'app/models/pipeline';
+import {Stage} from 'app/models/stage';
 
 @Injectable()
 export class StagesService extends ApiService {
-
   private url = `${this.getHost()}/stages`;
 
   getStages() {
     return this.http.get(this.url, this.options)
-                    .toPromise()
-                    .then(res => res.json() as Stage[])
-                    .catch(this.handleError);
+        .toPromise()
+        .then(res => res as Stage[])
+        .catch(this.handleError);
   }
 
   addStage(stage_data) {
     return this.http.post(this.url, JSON.stringify(stage_data), this.options)
-                    .toPromise()
-                    .then(res => res.json() as Stage)
-                    .catch(this.handleError);
+        .toPromise()
+        .then(res => res as Stage)
+        .catch(this.handleError);
   }
 
   deleteStage(id) {
     return this.http.delete(this.getStageUrl(id))
-                    .toPromise()
-                    .catch(this.handleError);
+        .toPromise()
+        .catch(this.handleError);
   }
 
   getPipelinesForAllStages(stages) {
@@ -53,15 +51,15 @@ export class StagesService extends ApiService {
 
   getPipelinesForStage(stage) {
     return this.http.get(this.getPipelinesUrl(stage.sid), this.options)
-                    .toPromise()
-                    .then(res => {
-                      const pipelines = res.json() as Pipeline[];
-                      for (const pipeline of pipelines) {
-                        pipeline.sid = stage.sid;
-                      }
-                      return pipelines;
-                    })
-                    .catch(this.handleError);
+        .toPromise()
+        .then(res => {
+          const pipelines = res as Pipeline[];
+          for (const pipeline of pipelines) {
+            pipeline.sid = stage.sid;
+          }
+          return pipelines;
+        })
+        .catch(this.handleError);
   }
 
   private getStageUrl(id) {
