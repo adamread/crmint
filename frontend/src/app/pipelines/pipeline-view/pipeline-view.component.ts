@@ -28,8 +28,8 @@ import {PipelinesService} from './../shared/pipelines.service';
   styleUrls: ['./pipeline-view.component.sass'],
 })
 export class PipelineViewComponent implements OnInit {
-  @ViewChild('graph') graph;
-  @ViewChild('pipelineLogs') pipelineLogs;
+  @ViewChild('graph', { static: false }) graph;
+  @ViewChild('pipelineLogs', { static: false }) pipelineLogs;
   pipeline: Pipeline = new Pipeline();
   jobs: Job[] = [];
   state = 'loading';  // State has one of values: loading, loaded, error
